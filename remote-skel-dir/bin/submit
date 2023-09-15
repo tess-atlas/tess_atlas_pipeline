@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Input args:
+jobname="$1"
+jobscript="$2"
+
+if [ -z "${jobname}" ]; then
+  echo "ERROR: no jobname given"
+  exit 1
+fi
+
+if [ -z "${jobscript}" ]; then
+  echo "ERROR: no jobscript given"
+  exit 1
+fi
+
+set -eu
+
+cd "$JOB_DIR/$jobname"
+output=$(sbatch "$jobscript")
+echo "$output" | cut -d' ' -f4

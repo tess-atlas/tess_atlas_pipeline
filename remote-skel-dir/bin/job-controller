@@ -1,0 +1,60 @@
+#!/bin/bash
+
+VERBOSE=false
+
+if [ -z "$SSH_ORIGINAL_COMMAND" ]; then
+  echo "ERROR: no command specified."
+  exit 1
+fi
+
+set -eu
+
+# Assuming the following directory structure:
+#
+# ${JC_DIR}
+#   ├── bin
+#   │   ├── job-controller
+#   │   ├── rrsync
+#   │   ├── status
+#   │   └── submit
+#   └── jobs
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+JC_DIR=$( cd -- "$( dirname -- "${SCRIPT_DIR}" )" &> /dev/null && pwd )
+
+# Get/export additional variables required by child scripts
+export JC_BIN="$JC_DIR/bin"
+export JOB_DIR="$JC_DIR/jobs"
+
+# Convert into an array
+FULL_CMD=($SSH_ORIGINAL_COMMAND)
+
+# Function for sanitizing arguments
+function sanitize {
+  echo "${1//[^a-zA-Z0-9\-\.]/}"
+}
+
+function debug {
+  if $VERBOSE; then
+    >&2 echo "$1"
+  fi
+}
+
+# Parse and call matching command
+case "${FULL_CMD[0]}" in
+  "status")
+    jobid=$(sanitize "${FULL_CMD[1]}")
+    debug "JC: status $jobid"
+    "$JC_BIN/status" "$jobid"
+    ;;
+  "submit")
+    jobname=$(sanitize "${FULL_CMD[1]}")
+    jobscript=$(sanitize "${FULL_CMD[2]}")
+    debug "JC: submit $jobname $jobscript"
+    "$JC_BIN/submit" "$jobname" "$jobscript"
+    ;;
+  *)
+    echo "Access denied"
+    exit 1
+    ;;
+esac
