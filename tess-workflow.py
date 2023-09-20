@@ -5,7 +5,7 @@ from utils import (
     wait_for_jobs,
     generate_tess_job,
     submit_tess_job,
-    get_results,
+    rsync_tess_results,
     get_job_ids,
 )
 
@@ -16,6 +16,7 @@ from utils import (
 # 4) copy back job results if successful
 
 jobname = "tess-test"
+test_catalogue_path = "tess-catalogue"
 
 generate_tess_job(jobname)
 submit_tess_job(jobname)
@@ -29,7 +30,7 @@ for jobid, state in zip(jobids, states):
     print(fstring.format(jobid, state))
 
 if set(states) == set(["COMPLETE"]):
-    get_results(jobname)
+    rsync_tess_results(jobname, test_catalogue_path)
 else:
     print("\nERROR: some jobs failed.")
     sys.exit(1)

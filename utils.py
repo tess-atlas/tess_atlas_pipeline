@@ -95,6 +95,7 @@ def wait_for_jobs(job_ids, wait=5):
     return states
 
 
-def get_results(jobname):
-    log("Getting results from:", jobname)
+def rsync_tess_results(jobname, save_path):
+    log("Getting results from:", jobname, "rsync-ing them to:", save_path)
+    print("Not implemented")
     # result = rsync()
