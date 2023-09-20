@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Input args:
+JOB_CONTROLLER_PATH="$1"
+OZSTAR_USER="$USER"
+
+if [ -z "${JOB_CONTROLLER_PATH}" ]; then
+  echo "ERROR: no path given as argument"
+  exit 1
+fi
+
+set -eu
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$SCRIPT_DIR"
+
+KEYNAME="tess-catalogue"
+KEYNAME_RSYNC="tess-catalogue-rsync"
+
+mkdir -p keys controlmasters
+
+ssh-keygen -t ed25519 -C "$KEYNAME" -f ./keys/$KEYNAME -N '' || true
+echo
+
+ssh-keygen -t ed25519 -C "$KEYNAME_RSYNC" -f ./keys/$KEYNAME_RSYNC -N '' || true
+echo
+
+echo "==> Finished generating keys. Add the following to your ~/.ssh/authorized_keys on the remote"
+echo
+
+PUBKEY="$(cat ./keys/$KEYNAME.pub)"
+PUBKEY_RSYNC="$(cat ./keys/$KEYNAME_RSYNC.pub)"
+
+cat << EOF
+restrict,command="$JOB_CONTROLLER_PATH/bin/tess-job-controller" $PUBKEY
+restrict,command="$JOB_CONTROLLER_PATH/bin/rrsync -ro $JOB_CONTROLLER_PATH/jobs" $PUBKEY_RSYNC
+
+EOF
+
+
+cat << EOF > ssh-config
+Host *
+  ControlMaster = auto
+  ControlPersist = 10m
+  User = $OZSTAR_USER
+  IdentitiesOnly = yes
+
+Host jc
+  ControlPath = $SCRIPT_DIR/controlmasters/rsync
+  HostName = nt.swin.edu.au
+  IdentityFile = $SCRIPT_DIR/keys/$KEYNAME
+
+Host jc-copy
+  ControlPath = $SCRIPT_DIR/controlmasters/jobcontroller
+  HostName = data-mover02.hpc.swin.edu.au
+  IdentityFile = $SCRIPT_DIR/keys/$KEYNAME_RSYNC
+
+EOF
