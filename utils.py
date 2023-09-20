@@ -19,7 +19,7 @@ def log(*args):
     print(f"{line}\n[{tstring}]", *args, f"\n{line}")
 
 
-def shell(cmd, failfast=False):
+def shell(cmd, failfast=True):
     log('Running:', cmd)
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     result.stdout = result.stdout.strip()
@@ -31,9 +31,9 @@ def shell(cmd, failfast=False):
     return result
 
 
-def jcrun(command):
+def jcrun(command, failfast=True):
     cmd = CMD.format(command)
-    return shell(cmd)
+    return shell(cmd, failfast=failfast)
 
 
 def rsync(from_path, to_path="."):
@@ -53,13 +53,11 @@ def get_job_status(jobid):
 
 
 def generate_tess_job(jobname):
-    result = jcrun(f"generate {jobname}")
-    result.check_returncode()
+    jcrun(f"generate {jobname}")
 
 
 def submit_script(jobname):
-    result = jcrun(f"submit {jobname}")
-    result.check_returncode()
+    jcrun(f"submit {jobname}")
 
 
 def wait_for_jobs(job_ids, wait=5):
