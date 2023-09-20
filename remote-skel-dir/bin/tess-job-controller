@@ -8,7 +8,7 @@ import sys
 import os
 from pathlib import Path
 
-FULL_CMD = os.getenv('SSH_ORIGINAL_COMMAND')
+FULL_CMD = os.getenv("SSH_ORIGINAL_COMMAND")
 
 # Assumed directory structure
 # {jc_dir}/
@@ -49,7 +49,9 @@ status_parser.add_argument("job_id", help="Slurm job ID to check status for")
 
 # Define a "generate" subcommand
 generate_parser = subparsers.add_parser("generate", help="Generate slurm catalogue job")
-generate_parser.add_argument("job_name", help="Name of the slurm catalogue job to generate")
+generate_parser.add_argument(
+    "job_name", help="Name of the slurm catalogue job to generate"
+)
 
 # Define a "submit" subcommand
 submit_parser = subparsers.add_parser("submit", help="Submit slurm catalogue job")
