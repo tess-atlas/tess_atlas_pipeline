@@ -14,18 +14,20 @@ RSYNC = f'rsync -e "ssh -F {SSH_CONFIG}" -avzP jc-copy:{{}} {{}}'
 
 
 def log(*args):
-    line = '-' * os.get_terminal_size().columns
+    line = "-" * os.get_terminal_size().columns
     tstring = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"{line}\n[{tstring}]", *args, f"\n{line}")
 
 
 def shell(cmd, failfast=True):
-    log('Running:', cmd)
+    log("Running:", cmd)
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     result.stdout = result.stdout.strip()
     result.stderr = result.stderr.strip()
-    print(result.stdout)
-    print(result.stderr)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
     if failfast:
         result.check_returncode()
     return result
@@ -56,7 +58,7 @@ def generate_tess_job(jobname):
     jcrun(f"generate {jobname}")
 
 
-def submit_script(jobname):
+def submit_tess_job(jobname):
     jcrun(f"submit {jobname}")
 
 
@@ -67,23 +69,26 @@ def wait_for_jobs(job_ids, wait=5):
         jobids = []
     else:
         jobids = list(job_ids)
-
-    log("Waiting for the following job IDs to finish:")
-    for id in jobids:
-        print(id)
-    print()
+    del job_ids
 
     njobs = len(jobids)
     finished = [False] * njobs
     states = [None] * njobs
 
-    while not all(finished):
+    while True:
+        log("Waiting for the following job IDs to finish:")
         for i, id in enumerate(jobids):
-            status = get_job_status(id)
-            if status not in UNFINISHED_STATES:
-                finished[i] = True
-                states[i] = status
-        if not all(finished):
+            if not finished[i]:
+                print(id)
+        for i, id in enumerate(jobids):
+            if not finished[i]:
+                status = get_job_status(id)
+                if status not in UNFINISHED_STATES:
+                    finished[i] = True
+                    states[i] = status
+        if all(finished):
+            break
+        else:
             time.sleep(wait)
 
     log("All jobs finished.")
