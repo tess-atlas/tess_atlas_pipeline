@@ -9,8 +9,8 @@ CWD = Path(__file__).parent.absolute()
 UNFINISHED_STATES = ["PENDING", "RUNNING", "REQUEUED", "RESIZING", "SUSPENDED"]
 
 SSH_CONFIG = CWD / "ssh" / "ssh-config"
-CMD = f"ssh -F {SSH_CONFIG} jc {{}}"
-RSYNC = f'rsync -e "ssh -F {SSH_CONFIG}" -avzP jc-copy:{{}} {{}}'
+CMD = f"ssh -F {SSH_CONFIG} worker {{}}"
+RSYNC = f'rsync -e "ssh -F {SSH_CONFIG}" -avzP datamover:{{}} {{}}'
 
 
 def log(*args):
