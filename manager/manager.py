@@ -19,7 +19,7 @@ def log(*args):
     print(f"{line}\n[{tstring}]", *args, f"\n{line}")
 
 
-def shell(cmd, failfast=True):
+def _shell(cmd, failfast=True):
     log("Running:", cmd)
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     result.stdout = result.stdout.strip()
@@ -33,33 +33,31 @@ def shell(cmd, failfast=True):
     return result
 
 
-def jcrun(command, failfast=True):
-    cmd = CMD.format(command)
-    return shell(cmd, failfast=failfast)
+def worker_run(command, failfast=True):
+    return _shell(CMD.format(command), failfast=failfast)
 
 
 def rsync(from_path, to_path="."):
-    cmd = RSYNC.format(from_path, to_path)
-    return shell(cmd)
+    return _shell(RSYNC.format(from_path, to_path))
 
 
 def get_job_ids(jobname):
-    result = jcrun(f"get-job-ids {jobname}")
+    result = worker_run(f"get-job-ids {jobname}")
     job_ids = result.stdout.split("\n")
     return job_ids
 
 
 def get_job_status(jobid):
-    result = jcrun(f"status {jobid}")
+    result = worker_run(f"status {jobid}")
     return result.stdout
 
 
 def generate_tess_job(jobname):
-    jcrun(f"generate {jobname}")
+    worker_run(f"generate {jobname}")
 
 
 def submit_tess_job(jobname):
-    jcrun(f"submit {jobname}")
+    worker_run(f"submit {jobname}")
 
 
 def wait_for_jobs(job_ids, wait=5):

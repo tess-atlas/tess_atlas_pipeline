@@ -2,7 +2,7 @@
 
 import sys
 import argparse
-from utils import (
+from manager import (
     wait_for_jobs,
     generate_tess_job,
     submit_tess_job,

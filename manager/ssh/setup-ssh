@@ -41,7 +41,7 @@ echo
 
 echo "==> Finished generating keys. Add the following lines to your ~/.ssh/authorized_keys on the remote:"
 cat << EOF
-restrict,command="$WORKER_INSTALL_PATH/bin/tess-job-controller" $(cat "$CWD/keys/$KEYNAME.pub")
+restrict,command="$WORKER_INSTALL_PATH/bin/entrypoint" $(cat "$CWD/keys/$KEYNAME.pub")
 restrict,command="$WORKER_INSTALL_PATH/bin/rrsync -ro $WORKER_INSTALL_PATH/jobs" $(cat "$CWD/keys/$KEYNAME_RSYNC.pub")
 
 EOF

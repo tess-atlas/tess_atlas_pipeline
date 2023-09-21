@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+"""
+This script is the main entrypoint in to the worker.
+It handles and sanitizes commands + arguments you wish to run on the remote.
+It supports the following commands:
+    status: gets the status/state of a SLURM job ID
+    generate: generates a batch of TESS Atlas catalogue slurm jobs
+    submit: submits a set of TESS Atlas catalogue slurm jobs
+    get-job-ids: gets all the IDs of the submitted jobs
+"""
+
 import argparse
 import subprocess
 import re
@@ -11,9 +21,9 @@ from pathlib import Path
 FULL_CMD = os.getenv("SSH_ORIGINAL_COMMAND")
 
 # Assumed directory structure
-# {jc_dir}/
+# {worker_install_path}/
 #   ├── bin/
-#   │   ├── tess-job-controller (this script)
+#   │   ├── entrypoint (this script)
 #   │   ├── rrsync
 #   │   └── generate-slurm-catalogue-job
 #   └── jobs/
@@ -24,9 +34,9 @@ FULL_CMD = os.getenv("SSH_ORIGINAL_COMMAND")
 #       └── jobname2/
 # etc...
 
-bin_dir = Path(__file__).parent.absolute()
-jc_dir = bin_dir.parent
-jobs_dir = jc_dir / "jobs"
+bin_path = Path(__file__).parent.absolute()
+worker_install_path = bin_path.parent
+jobs_path = worker_install_path / "jobs"
 
 # Define a regular expression pattern to validate the job ID (numeric characters)
 job_id_pattern = re.compile(r"^\d+$")
@@ -89,7 +99,7 @@ def status_command(args):
 # Function to handle the "generate" command
 def generate_command(args):
     sanitized_job_name = shlex.quote(args.job_name)
-    generate_script_path = bin_dir / "generate-slurm-catalogue-job"
+    generate_script_path = bin_path / "generate-slurm-catalogue-job"
     result = subprocess.run(
         [str(generate_script_path), sanitized_job_name], capture_output=True, text=True
     )
@@ -106,7 +116,7 @@ def generate_command(args):
 # Function to handle the "submit" command
 def submit_command(args):
     sanitized_job_name = shlex.quote(args.job_name)
-    submit_script_path = jobs_dir / sanitized_job_name / "submit" / "submit.sh"
+    submit_script_path = jobs_path / sanitized_job_name / "submit" / "submit.sh"
     result = subprocess.run(
         ["bash", str(submit_script_path)], capture_output=True, text=True
     )
@@ -124,7 +134,7 @@ def submit_command(args):
 # Function to handle the "get-job-ids" command
 def get_job_ids_command(args):
     sanitized_job_name = shlex.quote(args.job_name)
-    submit_script_path = jobs_dir / sanitized_job_name / "submit"
+    submit_script_path = jobs_path / sanitized_job_name / "submit"
 
     # Check if the "job.IDs" file exists
     job_ids_file_path = submit_script_path / "job.IDs"
