@@ -17,8 +17,6 @@ import sys
 import os
 from pathlib import Path
 
-FULL_CMD = os.getenv("SSH_ORIGINAL_COMMAND")
-
 # Assumed directory structure
 # {worker_install_path}/
 #   ├── bin/
@@ -124,7 +122,7 @@ def submit_command(args):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args(FULL_CMD.split())
+    args = parser.parse_args(os.getenv("SSH_ORIGINAL_COMMAND", "").split())
 
     # Call the corresponding function based on the selected command
     if args.command == "status":
