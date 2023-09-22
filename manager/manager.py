@@ -22,15 +22,18 @@ def log(*args, level='INFO'):
     print(f"{colour}[{tstring}]\033[0m", *args)
 
 
-def _shell(cmd, failfast=True):
+def _shell(cmd, capture_output=True, failfast=True):
     log("Running:", cmd)
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    result.stdout = result.stdout.strip()
-    result.stderr = result.stderr.strip()
-    if result.stdout:
-        print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
+    result = subprocess.run(cmd, shell=True, capture_output=capture_output, text=True)
+
+    if capture_output:
+        result.stdout = result.stdout.strip()
+        result.stderr = result.stderr.strip()
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
+
     if failfast:
         result.check_returncode()
     return result
