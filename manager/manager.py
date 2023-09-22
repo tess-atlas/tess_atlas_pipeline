@@ -44,7 +44,7 @@ def worker_run(command, failfast=True):
 
 
 def rsync(from_path, to_path="."):
-    return _shell(RSYNC.format(from_path, to_path))
+    return _shell(RSYNC.format(from_path, to_path), capture_output=False)
 
 
 def get_job_status(jobid):
@@ -98,4 +98,5 @@ def wait_for_jobs(job_ids, wait=5):
 def rsync_tess_results(jobname, save_path):
     log("Getting results from:", jobname, "rsync-ing them to:", save_path)
     print("Not implemented")
-    # result = rsync()
+    fpath = Path(jobname) / "toi*"
+    return rsync(fpath, save_path)
