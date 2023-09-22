@@ -7,6 +7,7 @@ from manager import (
     generate_tess_job,
     submit_tess_job,
     rsync_tess_results,
+    log,
 )
 
 if __name__ == "__main__":
@@ -43,5 +44,5 @@ if __name__ == "__main__":
     if set(states) == set(["COMPLETE"]):
         rsync_tess_results(jobname, tess_catalgoue_path)
     else:
-        print("\nERROR: some jobs failed.")
+        log("ERROR: some jobs failed.", level='ERROR')
         sys.exit(1)

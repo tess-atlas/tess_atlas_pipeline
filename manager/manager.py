@@ -13,10 +13,14 @@ CMD = f"ssh -F {SSH_CONFIG} worker {{}}"
 RSYNC = f'rsync -e "ssh -F {SSH_CONFIG}" -avzP datamover:{{}} {{}}'
 
 
-def log(*args):
-    line = "-" * os.get_terminal_size().columns
+
+def log(*args, level='INFO'):
     tstring = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"{line}\n[{tstring}]", *args, f"\n{line}")
+    if level == 'ERROR':
+        colour = "\033[31m"
+    else:
+        colour = "\033[92m"
+    print(f"{colour}[{tstring}]\033[0m", *args)
 
 
 def _shell(cmd, failfast=True):
