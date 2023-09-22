@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import subprocess
 import argparse
 from manager import (
     wait_for_jobs,
@@ -19,6 +20,9 @@ if __name__ == "__main__":
     parser.add_argument("jobname", help="Name of the job")
     parser.add_argument(
         "tess_catalgoue_path", help="Path to where you want to rsync the TESS catalogue"
+    )
+    parser.add_argument(
+        "--web-builder", help="Path to TESS Atlas web builder",
     )
     args = parser.parse_args()
 
@@ -46,3 +50,8 @@ if __name__ == "__main__":
     else:
         log("ERROR: some jobs failed.", level='ERROR')
         sys.exit(1)
+
+    if args.web_builder:
+        subprocess.run(['make'], cwd=args.web_builder, shell=True, text=True)
+    else:
+        print("Web build dir not provided. Skipping...")
