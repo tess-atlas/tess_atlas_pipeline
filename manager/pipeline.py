@@ -7,7 +7,6 @@ from manager import (
     generate_tess_job,
     submit_tess_job,
     rsync_tess_results,
-    get_job_ids,
 )
 
 if __name__ == "__main__":
@@ -32,8 +31,7 @@ if __name__ == "__main__":
     # 4) copy back job results if successful
 
     generate_tess_job(jobname)
-    submit_tess_job(jobname)
-    jobids = get_job_ids(jobname)
+    jobids = submit_tess_job(jobname)
     states = wait_for_jobs(jobids)
 
     print("Final states:")

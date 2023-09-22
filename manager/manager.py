@@ -41,12 +41,6 @@ def rsync(from_path, to_path="."):
     return _shell(RSYNC.format(from_path, to_path))
 
 
-def get_job_ids(jobname):
-    result = worker_run(f"get-job-ids {jobname}")
-    job_ids = result.stdout.split("\n")
-    return job_ids
-
-
 def get_job_status(jobid):
     result = worker_run(f"status {jobid}")
     return result.stdout
@@ -57,7 +51,9 @@ def generate_tess_job(jobname):
 
 
 def submit_tess_job(jobname):
-    worker_run(f"submit {jobname}")
+    result = worker_run(f"submit {jobname}")
+    job_ids = result.stdout.split("\n")
+    return job_ids
 
 
 def wait_for_jobs(job_ids, wait=5):
