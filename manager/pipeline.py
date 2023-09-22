@@ -45,7 +45,7 @@ if __name__ == "__main__":
     for jobid, state in zip(jobids, states):
         print(fstring.format(jobid, state))
 
-    if set(states) == set(["COMPLETE"]):
+    if set(states) == set(["COMPLETED"]):
         rsync_tess_results(jobname, tess_catalgoue_path)
     else:
         log("ERROR: some jobs failed.", level='ERROR')
