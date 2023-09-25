@@ -12,10 +12,9 @@ CMD = f"ssh -F {SSH_CONFIG} worker -- {{}}"
 RSYNC = f'rsync -e "ssh -F {SSH_CONFIG}" -avzP datamover:{{}} {{}}'
 
 
-
-def log(*args, level='INFO'):
+def log(*args, level="INFO"):
     tstring = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if level == 'ERROR':
+    if level == "ERROR":
         colour = "\033[31m"
     else:
         colour = "\033[92m"

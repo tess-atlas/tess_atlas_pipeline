@@ -20,7 +20,9 @@ if __name__ == "__main__":
     # Add command-line arguments for jobname and tess_catalgoue_path
     parser.add_argument("jobname", help="Name of the job")
     parser.add_argument(
-        "tess_catalgoue_path", help="Path to where you want to rsync the TESS catalogue", type=Path
+        "tess_catalgoue_path",
+        help="Path to where you want to rsync the TESS catalogue",
+        type=Path,
     )
     parser.add_argument(
         "--web-build-dir", help="Path to TESS Atlas web builder", type=Path
@@ -33,7 +35,9 @@ if __name__ == "__main__":
     if web_build_dir and not web_build_dir.is_dir():
         raise FileNotFoundError(f"web_build_dir '{web_build_dir}' does not exists")
     if not tess_catalgoue_path.is_dir():
-        raise FileNotFoundError(f"tess_catalgoue_path '{tess_catalgoue_path}' does not exists")
+        raise FileNotFoundError(
+            f"tess_catalgoue_path '{tess_catalgoue_path}' does not exists"
+        )
 
     # Steps:
     # 1) generate job dir + scripts
@@ -54,11 +58,11 @@ if __name__ == "__main__":
     if set(states) == set(["COMPLETED"]):
         rsync_tess_results(jobname, tess_catalgoue_path)
     else:
-        log("ERROR: some jobs failed.", level='ERROR')
+        log("ERROR: some jobs failed.", level="ERROR")
         sys.exit(1)
 
     if web_build_dir:
         log(f"Building web site in {web_build_dir}")
-        subprocess.run(['make'], cwd=web_build_dir, shell=True, text=True)
+        subprocess.run(["make"], cwd=web_build_dir, shell=True, text=True)
     else:
         print("Web build dir not provided. Skipping...")
