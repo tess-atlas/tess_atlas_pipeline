@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Inputs:
+WORKER_USER="$1"
+WORKER_INSTALL_PATH="$2"
+
+function usage {
+cat << EOF
+Usage: setup-ssh worker_user worker_install_path
+
+Positional arguments:
+  worker_user           Your username on the remote cluster where the worker will run
+  worker_install_path   Path you will install the worker to on the remote cluster
+EOF
+}
+
+if [ -z "${WORKER_USER}" ] || [ -z "${WORKER_INSTALL_PATH}" ]; then
+  usage
+  exit 1
+fi
+
+set -eu
+
+# Make sure we're in the directory containing this script
+CWD=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+echo "==> Changing directory to: $CWD"
+cd "$CWD"
+
+KEYNAME="tess-catalogue"
+KEYNAME_RSYNC="tess-catalogue-rsync"
+
+echo "==> Making directories..."
+mkdir -vp keys controlmasters
+
+echo "==> Generating ssh keys..."
+ssh-keygen -t ed25519 -C "$KEYNAME" -f ./keys/$KEYNAME -N '' || true
+echo
+
+ssh-keygen -t ed25519 -C "$KEYNAME_RSYNC" -f ./keys/$KEYNAME_RSYNC -N '' || true
+echo
+
+echo "==> Finished generating keys. Add the following lines to your ~/.ssh/authorized_keys on the remote:"
+cat << EOF
+restrict,command="$WORKER_INSTALL_PATH/bin/entrypoint" $(cat "$CWD/keys/$KEYNAME.pub")
+restrict,command="$WORKER_INSTALL_PATH/bin/rrsync -ro $WORKER_INSTALL_PATH/jobs" $(cat "$CWD/keys/$KEYNAME_RSYNC.pub")
+
+EOF
+
+echo "==> Generating ssh-config ..."
+cat << EOF > ssh-config
+Host *
+  ControlMaster = auto
+  ControlPersist = 10m
+  User = $WORKER_USER
+  IdentitiesOnly = yes
+
+Host worker
+  HostName = nt.swin.edu.au
+  IdentityFile = $CWD/keys/$KEYNAME
+  ControlPath = $CWD/controlmasters/rsync
+
+Host datamover
+  HostName = data-mover02.hpc.swin.edu.au
+  IdentityFile = $CWD/keys/$KEYNAME_RSYNC
+  ControlPath = $CWD/controlmasters/jobcontroller
+
+EOF
+
+echo "==> Done"

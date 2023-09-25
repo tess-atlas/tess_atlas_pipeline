@@ -1,34 +1,29 @@
-# Job Controller Lite
+# TESS Atlas Catalogue Pipeline
 
-First, copy the skeleton directory to where you want the job controller working directory to be, e.g.
+First, "install" the worker by copying the `worker` skeleton directory to the remote cluster, e.g.
 ```
-scp -r remote-skel-dir <destination>:<jc-working-directory>
+scp -r worker <destination>:<worker_install_path>
 ```
 
 For security, we want to do everything via restricted ssh keys.
 
-You'll need:
-
-- Two new ssh keys. One as the main job controller key, and the other for rsync use
+Go to `manager/ssh/` and run the `setup-ssh` script:
 ```
-ssh-keygen -t ed25519 -C "$USER-job-controller" -f ~/.ssh/$USER-job-controller -N ''
-ssh-keygen -t ed25519 -C "$USER-rsync" -f ~/.ssh/$USER-rsync -N ''
+cd manager/ssh/
+setup-ssh <username_on_remote> <worker_install_path>
 ```
 
-- On the remote (where jobs will run), add the public keys to your ~/.ssh/authorized_keys like so
-```
-restrict,command="<jc-working-directory>/bin/job-controller" <main-job-controller-publickey>
-restrict,command="<jc-working-directory>/bin/rrsync -ro <jc-working-directory>/jobs" <rsync-publickey>
-```
-where `<jc-working-directory>` is the path you've chosen for your job controller to work in.
+This script will:
+- Generate two new ssh keys. One as the main key for running commands on the remote, and the other for rsync use
+- Print the lines you need to add to your `~/.ssh/authorized_keys` on the remote cluster
+- Create an SSH configuration file to be used by the manager
 
-The `job-controller` should be a wrapper script that handles and sanitizes commands+arguments you wish to run on the remote.
-
+## Restricted rsync
 `rrsync` you can get from the rsync github page. You should probably download the version that matches the rsync version on your remote machine. Check this by doing `rsync --version`.
 
 If you have, for example, version `3.2.3`, then do
 ```
-cd <jc-working-directory>/bin
+cd <worker_install_path>/bin
 wget https://raw.githubusercontent.com/WayneD/rsync/v3.2.3/support/rrsync
 chmod +x rrsync
 ```

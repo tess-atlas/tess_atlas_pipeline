@@ -1,0 +1,9 @@
+#!/bin/bash
+set -eu
+
+CWD=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$CWD"
+
+source env.rc
+export SSH_ORIGINAL_COMMAND
+./entrypoint.py
