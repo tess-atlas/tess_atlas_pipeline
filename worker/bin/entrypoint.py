@@ -20,9 +20,10 @@ from pathlib import Path
 # Assumed directory structure
 # {worker_install_path}/
 #   ├── bin/
-#   │   ├── entrypoint (this script)
-#   │   ├── rrsync
-#   │   └── generate-slurm-catalogue-job
+#   │   ├── entrypoint
+#   │   ├── env.rc
+#   │   ├── entrypoint.py (this script)
+#   │   └── rrsync
 #   └── jobs/
 #       ├── jobname1/
 #       │   └── submit/
@@ -94,7 +95,10 @@ def generate_command(args):
     sanitized_job_name = shlex.quote(args.job_name)
     outdir = jobs_path / sanitized_job_name
 
+    os.makedirs(outdir, exist_ok=True)
+
     toi_numbers = parse_toi_numbers(None, None, outdir)
+
     setup_jobs(
         toi_numbers=toi_numbers,
         outdir=outdir,
