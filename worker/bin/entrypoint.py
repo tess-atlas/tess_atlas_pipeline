@@ -89,19 +89,22 @@ def status_command(args):
 
 # Function to handle the "generate" command
 def generate_command(args):
+    from tess_atlas_slurm_utils.slurm_job_generator import parse_toi_numbers, setup_jobs
+
     sanitized_job_name = shlex.quote(args.job_name)
-    generate_script_path = bin_path / "generate-slurm-catalogue-job"
-    result = subprocess.run(
-        [str(generate_script_path), sanitized_job_name], capture_output=True, text=True
+    outdir = jobs_path / sanitized_job_name
+
+    toi_numbers = parse_toi_numbers(None, None, outdir)
+    setup_jobs(
+        toi_numbers=toi_numbers,
+        outdir=outdir,
+        module_loads="",
+        submit=False,
+        clean=True,
+        email="",
     )
-    if result.returncode == 0:
-        print(f"Job generated successfully: {args.job_name}")
-        print(result.stdout)
-    else:
-        print(f"Error: Unable to generate job {args.job_name}:")
-        print(result.stdout)
-        print(result.stderr)
-        sys.exit(1)
+
+    print(f"Job generated successfully: {sanitized_job_name}")
 
 
 # Function to handle the "submit" command
