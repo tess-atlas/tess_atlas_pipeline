@@ -54,11 +54,11 @@ if __name__ == "__main__":
     else:
         log("Successfully submitted analysis jobs:", jobids)
 
-    states = wait_for_jobs(jobids)
+    states = wait_for_jobs(jobids, wait=60)
 
     success = True
     print("Final states:")
-    fstring = "{: >15} {: >15}"
+    fstring = "{: >20} {: >20}"
     print(fstring.format("Job ID", "State"))
     for jobid, state_list in zip(jobids, states):
         if type(state_list) == list:
