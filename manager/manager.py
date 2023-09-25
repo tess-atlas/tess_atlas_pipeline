@@ -51,7 +51,7 @@ def rsync(from_path, to_path="."):
 
 
 def get_job_states(jobid):
-    result = worker_run(f"status {jobid}")
+    result = worker_run(f"status {jobid}", print_output=False)
     job_states = result.stdout.split("\n")
     return job_states
 
@@ -112,6 +112,8 @@ def wait_for_jobs(job_ids, wait=10):
 
             if not finished[i]:
                 job_states = get_job_states(j_id)
+                for idx, jstate in enumerate(job_states):
+                    print(f"{j_id}_{idx}", jstate)
 
                 if any([ state not in UNFINISHED_STATES for state in job_states ]):
                     finished[i] = True
