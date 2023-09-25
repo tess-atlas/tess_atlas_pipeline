@@ -76,12 +76,12 @@ def wait_for_jobs(job_ids, wait=5):
 
     while True:
         log("Waiting for the following job IDs to finish:")
-        for i, id in enumerate(jobids):
+        for i, j_id in enumerate(jobids):
             if not finished[i]:
-                print(id)
-        for i, id in enumerate(jobids):
+                print(j_id)
+        for i, j_id in enumerate(jobids):
             if not finished[i]:
-                status = get_job_status(id)
+                status = get_job_status(j_id)
                 if status not in UNFINISHED_STATES:
                     finished[i] = True
                     states[i] = status
