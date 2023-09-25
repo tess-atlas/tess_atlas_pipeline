@@ -51,6 +51,8 @@ if __name__ == "__main__":
     if jobids == []:
         log("ERROR: no jobs!", level="ERROR")
         sys.exit(1)
+    else:
+        log("Successfully submitted analysis jobs:", jobids)
 
     states = wait_for_jobs(jobids)
 
