@@ -47,6 +47,11 @@ if __name__ == "__main__":
 
     generate_tess_job(jobname)
     jobids = submit_tess_job(jobname)
+
+    if jobids == []:
+        log("ERROR: no jobs!", level="ERROR")
+        sys.exit(1)
+
     states = wait_for_jobs(jobids)
 
     print("Final states:")
