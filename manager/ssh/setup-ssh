@@ -32,6 +32,9 @@ KEYNAME_RSYNC="tess-catalogue-rsync"
 echo "==> Making directories..."
 mkdir -vp keys controlmasters
 
+echo "==> Clearing out 'controlmasters'..."
+rm -vf controlmasters/*
+
 echo "==> Generating ssh keys..."
 ssh-keygen -t ed25519 -C "$KEYNAME" -f ./keys/$KEYNAME -N '' || true
 echo
