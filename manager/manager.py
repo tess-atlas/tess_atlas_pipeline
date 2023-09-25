@@ -126,6 +126,5 @@ def wait_for_jobs(job_ids, wait=10):
 
 def rsync_tess_results(jobname, save_path):
     log("Getting results from:", jobname, "rsync-ing them to:", save_path)
-    print("Not implemented")
-    fpath = Path(jobname) / "toi*"
-    return rsync(fpath, save_path)
+    rsync(Path(jobname) / "toi*", save_path)
+    rsync(Path(jobname) / "run_stats.csv", save_path)
