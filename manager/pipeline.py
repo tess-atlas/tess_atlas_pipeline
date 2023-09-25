@@ -56,17 +56,22 @@ if __name__ == "__main__":
 
     states = wait_for_jobs(jobids)
 
+    success = True
     print("Final states:")
-    fstring = "{: >10} {: >10}"
+    fstring = "{: >15} {: >15}"
     print(fstring.format("Job ID", "State"))
     for jobid, state_list in zip(jobids, states):
         if type(state_list) == list:
             for i,s in enumerate(state_list):
                 print(fstring.format(f"{jobid}_{i}", s))
+                if s != "COMPLETED":
+                    success = False
         else:
             print(fstring.format(jobid, state_list))
+            if state_list != "COMPLETED":
+                success = False
 
-    if set(states) == set(["COMPLETED"]):
+    if success:
         rsync_tess_results(jobname, tess_catalgoue_path)
     else:
         log("ERROR: some jobs failed.", level="ERROR")
