@@ -60,7 +60,11 @@ if __name__ == "__main__":
     fstring = "{: >10} {: >10}"
     print(fstring.format("Job ID", "State"))
     for jobid, state in zip(jobids, states):
-        print(fstring.format(jobid, state))
+        if type(states) == list:
+            for i,s in enumerate(states):
+                print(fstring.format(f"{jobid}_{i}", s))
+        else:
+            print(fstring.format(jobid, state))
 
     if set(states) == set(["COMPLETED"]):
         rsync_tess_results(jobname, tess_catalgoue_path)

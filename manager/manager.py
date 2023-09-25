@@ -50,9 +50,10 @@ def rsync(from_path, to_path="."):
     return _shell(RSYNC.format(from_path, to_path), capture_output=False)
 
 
-def get_job_status(jobid):
+def get_job_states(jobid):
     result = worker_run(f"status {jobid}")
-    return result.stdout
+    job_states = result.stdout.split("\n")
+    return job_states
 
 
 def generate_tess_job(jobname):
@@ -95,8 +96,8 @@ def wait_for_jobs(job_ids, wait=10):
             if sacct[i]:
                 continue
             else:
-                status = get_job_status(j_id)
-                if status != "":
+                job_states = get_job_states(j_id)
+                if job_states != "":
                     sacct[i] = True
 
         if not all(sacct):
@@ -108,11 +109,14 @@ def wait_for_jobs(job_ids, wait=10):
     while True:
         log("---> Checking jobs:", [jobids[i] for i in range(njobs) if not finished[i]])
         for i, j_id in enumerate(jobids):
+
             if not finished[i]:
-                status = get_job_status(j_id)
-                if status not in UNFINISHED_STATES:
+                job_states = get_job_states(j_id)
+
+                if any([ state not in UNFINISHED_STATES for state in job_states ]):
                     finished[i] = True
-                    states[i] = status
+                    states[i] = job_states
+
         if all(finished):
             break
         else:
