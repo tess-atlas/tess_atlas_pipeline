@@ -46,21 +46,21 @@ if __name__ == "__main__":
     # 4) copy back job results if successful
 
     generate_tess_job(jobname)
-    batch_ids = submit_tess_job(jobname)
+    jobarray_ids = submit_tess_job(jobname)
 
-    if batch_ids == []:
+    if jobarray_ids == []:
         log("ERROR: no jobs!", level="ERROR")
         sys.exit(1)
     else:
-        log("Successfully submitted analysis jobs:", batch_ids)
+        log("Successfully submitted analysis jobs:", jobarray_ids)
 
-    states = wait_for_jobs(batch_ids, wait=60)
+    states = wait_for_jobs(jobarray_ids, wait=60)
 
     success = True
     print("Final states:")
     fstring = "{: >20} {: >20}"
     print(fstring.format("Job ID", "State"))
-    for jobid, state_list in zip(batch_ids, states):
+    for jobid, state_list in zip(jobarray_ids, states):
         if type(state_list) == list:
             for i,s in enumerate(state_list):
                 print(fstring.format(f"{jobid}_{i}", s))
