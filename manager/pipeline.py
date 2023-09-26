@@ -5,6 +5,7 @@ import subprocess
 import argparse
 from pathlib import Path
 from manager import (
+    wait_for_sacct,
     wait_for_jobs,
     generate_tess_job,
     submit_tess_job,
@@ -54,24 +55,25 @@ if __name__ == "__main__":
     else:
         log("Successfully submitted analysis jobs:", jobarray_ids)
 
-    states = wait_for_jobs(jobarray_ids, wait=60)
+    # Wait for jobs to enter sacct
+    wait_for_sacct(jobarray_ids)
 
-    success = True
+    # Construct a list of jobs
+    _jobs = [dict(id=i, finished=False, states=None, success=False) for i in jobarray_ids]
+
+    # Wait for them to all to finish
+    jobs = wait_for_jobs(_jobs, wait=60)
+
     print("Final states:")
     fstring = "{: >20} {: >20}"
-    print(fstring.format("Job ID", "State"))
-    for jobid, state_list in zip(jobarray_ids, states):
-        if type(state_list) == list:
-            for i,s in enumerate(state_list):
-                print(fstring.format(f"{jobid}_{i}", s))
-                if s != "COMPLETED":
-                    success = False
-        else:
-            print(fstring.format(jobid, state_list))
-            if state_list != "COMPLETED":
-                success = False
 
-    if success:
+    print(fstring.format("Job ID", "State"))
+    for job in jobs:
+        for i, state in enumerate(job['states']):
+            print(fstring.format(f"{job['id']}_{i}", state))
+
+    # Copy results if all were successful
+    if all([job['success'] for job in jobs]):
         rsync_tess_results(jobname, tess_catalgoue_path)
     else:
         log("ERROR: some jobs failed.", level="ERROR")

@@ -66,48 +66,43 @@ def submit_tess_job(jobname):
     return submitted_ids
 
 
-def wait_for_jobs(ids, wait=10):
-    # Always work with a list
-    if type(ids) == int:
-        jobarray_ids = [ids]
-    elif ids is None:
-        jobarray_ids = []
-    else:
-        jobarray_ids = list(ids)
-    del ids
+def wait_for_jobs(jobs, wait=10):
 
-    # Wait for batches to enter sacct
-    wait_for_sacct(jobarray_ids)
-
-    nbatches = len(jobarray_ids)
-    finished = [False] * nbatches
-    states = [None] * nbatches
-    fstring = "{: >20} {: >20}"
-
-    log("===> Waiting for jobs to finish:")
+    log("===> Waiting for jobs to finish")
     while True:
-        for i, jobarray in enumerate(jobarray_ids):
 
-            if not finished[i]:
-                job_states = get_job_states(jobarray)
+        # Check each jobarray
+        for job in jobs:
+        # for i, jobarray in enumerate(jobarray_ids):
 
-                print(fstring.format("Job ID", "State"))
-                for idx, jstate in enumerate(job_states):
-                    print(fstring.format(f"{jobarray}_{idx}", jstate))
+            if not job['finished']:
+                job['states'] = get_job_states(job['id'])
+                job['unique_states'] = set(job['states'])
 
-                if any([ state not in UNFINISHED_STATES for state in job_states ]):
-                    finished[i] = True
-                    states[i] = job_states
+                log("States:", job['unique_states'])
 
-        if all(finished):
+                # Check if each unique state is finished or not
+                done = True
+                for s in job['unique_states']:
+                    if s in UNFINISHED_STATES:
+                        done = False
+                        break
+                job["finished"] = done
+
+        if all([job['finished'] for job in jobs]):
             break
         else:
-            log("Jobs IDs remaining:", [jobarray_ids[i] for i in range(nbatches) if not finished[i]])
-            log(f"<--- Waiting {wait} seconds before checking again...")
+            log(f"--> Waiting {wait} seconds before checking again...")
             time.sleep(wait)
 
     log("<=== All jobs finished")
-    return states
+
+    # Check if jobs were successful
+    for job in jobs:
+        if job['unique_states'] == 1 and list(job['unique_states'])[0]=='COMPLETED':
+            job['success'] = True
+
+    return jobs
 
 
 def rsync_tess_results(jobname, save_path):
