@@ -12,8 +12,6 @@ SSH_CONFIG = CWD / "ssh" / "ssh-config"
 CMD = f"ssh -F {SSH_CONFIG} worker -- {{}}"
 RSYNC = f'rsync -e "ssh -F {SSH_CONFIG}" -avzP datamover:{{}} {{}}'
 
-MAX_RETRIES = 10
-
 
 def log(*args, level="INFO"):
     tstring = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -50,8 +48,8 @@ def rsync(from_path, to_path="."):
     return _shell(RSYNC.format(from_path, to_path), capture_output=False)
 
 
-def get_job_states(jobid):
-    result = worker_run(f"status {jobid}", print_output=False)
+def get_job_states(batchid):
+    result = worker_run(f"status {batchid}", print_output=False)
     job_states = result.stdout.split("\n")
     return job_states
 
@@ -62,58 +60,38 @@ def generate_tess_job(jobname):
 
 def submit_tess_job(jobname):
     result = worker_run(f"submit {jobname}", print_output=False)
-    job_ids = result.stdout.split("\n")
-    return job_ids
+    ids = result.stdout.split("\n")
+    return ids
 
 
-def wait_for_jobs(job_ids, wait=10):
-    if type(job_ids) == int:
-        jobids = [job_ids]
-    elif job_ids is None:
-        jobids = []
+def wait_for_jobs(ids, wait=10):
+    # Always work with a list
+    if type(ids) == int:
+        batch_ids = [ids]
+    elif ids is None:
+        batch_ids = []
     else:
-        jobids = list(job_ids)
-    del job_ids
+        batch_ids = list(ids)
+    del ids
 
-    njobs = len(jobids)
+    # Wait for batches to enter sacct
+    wait_for_sacct(batch_ids)
 
-    # Wait for jobs to enter sacct
-
-    sacct = [False] * njobs
-    nretries = 0
-    sacct_lag = 5
-
-    while not all(sacct):
-        nretries += 1
-
-        time.sleep(sacct_lag)
-
-        if nretries == MAX_RETRIES:
-            log(f"ERROR: reached max number of retries: {MAX_RETRIES}", level="ERROR")
-            sys.exit(1)
-
-        for i, j_id in enumerate(jobids):
-            if sacct[i]:
-                continue
-            else:
-                job_states = get_job_states(j_id)
-                if job_states != "":
-                    sacct[i] = True
-
-        if not all(sacct):
-            log(f"Some jobs not found in sacct yet, retrying in {sacct_lag} seconds...")
-
-    finished = [False] * njobs
-    states = [None] * njobs
+    nbatches = len(batch_ids)
+    finished = [False] * nbatches
+    states = [None] * nbatches
+    fstring = "{: >20} {: >20}"
 
     while True:
-        log("---> Checking jobs:", [jobids[i] for i in range(njobs) if not finished[i]])
-        for i, j_id in enumerate(jobids):
+        log("---> Checking jobs:", [batch_ids[i] for i in range(nbatches) if not finished[i]])
+        for i, jobid in enumerate(batch_ids):
 
             if not finished[i]:
-                job_states = get_job_states(j_id)
+                job_states = get_job_states(jobid)
+
+                print(fstring.format("Job ID", "State"))
                 for idx, jstate in enumerate(job_states):
-                    print(f"{j_id}_{idx}", jstate)
+                    print(fstring.format(f"{jobid}_{idx}", jstate))
 
                 if any([ state not in UNFINISHED_STATES for state in job_states ]):
                     finished[i] = True
@@ -122,7 +100,7 @@ def wait_for_jobs(job_ids, wait=10):
         if all(finished):
             break
         else:
-            log("Jobs IDs remaining:", [jobids[i] for i in range(njobs) if not finished[i]])
+            log("Jobs IDs remaining:", [batch_ids[i] for i in range(nbatches) if not finished[i]])
             log(f"<--- Waiting {wait} seconds before checking again...")
             time.sleep(wait)
 
@@ -134,3 +112,29 @@ def rsync_tess_results(jobname, save_path):
     log("Getting results from:", jobname, "rsync-ing them to:", save_path)
     rsync(Path(jobname) / "toi*", save_path)
     rsync(Path(jobname) / "run_stats.csv", save_path)
+
+
+def wait_for_sacct(batch_ids, wait=5, max_retries=10):
+
+    in_sacct = [False] * len(batch_ids)
+    nretries = 0
+
+    while not all(in_sacct):
+        nretries += 1
+
+        time.sleep(wait)
+
+        if nretries == max_retries:
+            log(f"ERROR: reached max number of retries: {max_retries}", level="ERROR")
+            sys.exit(1)
+
+        for i, batch in enumerate(batch_ids):
+            if in_sacct[i]:
+                continue
+            else:
+                job_states = get_job_states(batch)
+                if job_states != "":
+                    in_sacct[i] = True
+
+        if not all(in_sacct):
+            log(f"Some jobs not found in sacct yet, retrying in {wait} seconds...")
