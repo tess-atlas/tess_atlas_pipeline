@@ -73,7 +73,7 @@ def status_command(args):
         sys.exit(1)
 
     result = subprocess.run(
-        ["sacct", "--format=State", "--noheader", "-XP", "-j", args.job_id],
+        ["sacct", "--array", "--format=State", "--noheader", "-XP", "-j", args.job_id],
         capture_output=True,
         text=True,
     )
