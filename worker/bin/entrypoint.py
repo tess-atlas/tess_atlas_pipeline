@@ -98,11 +98,12 @@ def generate_command(args):
     os.makedirs(outdir, exist_ok=True)
 
     toi_numbers = parse_toi_numbers(None, None, outdir)
+    modules = os.getenv("LOADEDMODULES", "").split(':')
 
     setup_jobs(
         toi_numbers=toi_numbers,
         outdir=outdir,
-        module_loads="",
+        module_loads=" ".join(modules),
         submit=False,
         clean=True,
         email="",
