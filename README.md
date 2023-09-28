@@ -25,6 +25,9 @@ If you have, for example, version `3.2.3`, then do
 ```
 cd <worker_install_path>/bin
 wget https://raw.githubusercontent.com/WayneD/rsync/v3.2.3/support/rrsync
+
+
+## NOTE: this is not meant to be a library (just a convenient place to keep the pipeline code)
 chmod +x rrsync
 ```
 
