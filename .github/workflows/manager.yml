@@ -1,4 +1,4 @@
-name: Update ExoFOP data
+name: Run TESS-Atlas pipeline
 on:
   workflow_dispatch: # Triggered manually
   # schedule:
