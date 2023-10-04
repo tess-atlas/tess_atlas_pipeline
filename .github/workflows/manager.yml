@@ -30,7 +30,7 @@ jobs:
           echo "new dir:"
           pwd
           echo "Running pipeline:"
-          python pipeline.py |& tee pipeline.log
+          python pipeline.py tess_oct2_23 /mnt/storage/tess_atlas_webbuilder/source/objects/ --web-build-dir /mnt/storage/tess_atlas_webbuilder/ |& tee pipeline.log
         shell: bash
 
       # - name: Commit and Push Changes
