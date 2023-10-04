@@ -3,11 +3,11 @@ on:
   workflow_dispatch: # Triggered manually
   # schedule:
   #   - cron: "0 0 * * 0" # Scheduled to run every Sunday at midnight (0:00)
-  push:
-      branches:
-        - master
-      paths:
-        - '.github/workflows/manager.yml' # run on changes to this file (for testing)
+#  push:
+#      branches:
+#        - master
+#      paths:
+#        - '.github/workflows/manager.yml' # run on changes to this file (for testing)
 
 
 jobs:
