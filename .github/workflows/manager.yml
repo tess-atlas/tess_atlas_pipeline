@@ -1,0 +1,45 @@
+name: Update ExoFOP data
+on:
+  workflow_dispatch: # Triggered manually
+  # schedule:
+  #   - cron: "0 0 * * 0" # Scheduled to run every Sunday at midnight (0:00)
+  # push:
+  #     branches:
+  #       - main
+  #     paths:
+  #       - '.github/workflows/manager.yml' # Path to your workflow file
+
+
+jobs:
+  build:
+    runs-on: nectar
+
+    steps:
+      # - name: Checkout Repository
+      #   uses: actions/checkout@v2
+
+      - name: Source Runner's Environment and cd to the directory
+        run: |
+          # Add any environment setup commands here
+          # For example, sourcing a virtual environment
+          # source /path/to/your/virtualenv/bin/activate
+          pwd
+          source ~/.bash_profile
+          cd /mnt/storage/tess_atlas_pipeline/manager
+        shell: bash
+
+      - name: Run Your Command
+        run: python pipeline.py |& tee pipeline.log
+        shell: bash
+
+      # - name: Commit and Push Changes
+      #   run: |
+      #     git add data/*
+      #     git commit -m "Update TIC cache"
+      #     git push
+      #   env:
+      #     # Set the GitHub token to enable pushing back to the repository
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      # - name: Cleanup
+      #   uses: asilbek99/action-cleanup@v1.0
