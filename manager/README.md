@@ -8,3 +8,14 @@ This contains the collection of scripts/tools that the workflow manager needs.
 
 
 
+NOTE: To start the gh-runner as a service (in the background of the venv), run 
+```
+sudo ./svc.sh install
+sudo ./svc.sh start
+```
+
+Then to check in on it/kill it:
+```
+sudo ./svc.sh status
+sudo ./svc.sh stop
+```
