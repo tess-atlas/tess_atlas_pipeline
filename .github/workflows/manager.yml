@@ -3,11 +3,11 @@ on:
   workflow_dispatch: # Triggered manually
   # schedule:
   #   - cron: "0 0 * * 0" # Scheduled to run every Sunday at midnight (0:00)
-  # push:
-  #     branches:
-  #       - main
-  #     paths:
-  #       - '.github/workflows/manager.yml' # Path to your workflow file
+  push:
+      branches:
+        - main
+      paths:
+        - '.github/workflows/manager.yml' # run on changes to this file (for testing)
 
 
 jobs:
@@ -18,18 +18,19 @@ jobs:
       # - name: Checkout Repository
       #   uses: actions/checkout@v2
 
-      - name: Source Runner's Environment and cd to the directory
+      - name: Trigger pipeline
         run: |
           # Add any environment setup commands here
           # For example, sourcing a virtual environment
           # source /path/to/your/virtualenv/bin/activate
+          echo "start dir"
           pwd
           source ~/.bash_profile
           cd /mnt/storage/tess_atlas_pipeline/manager
-        shell: bash
-
-      - name: Run Your Command
-        run: python pipeline.py |& tee pipeline.log
+          echo "new dir:"
+          pwd
+          echo "Running pipeline:"
+          python pipeline.py |& tee pipeline.log
         shell: bash
 
       # - name: Commit and Push Changes
