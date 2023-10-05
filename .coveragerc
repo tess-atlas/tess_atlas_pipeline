@@ -1,0 +1,6 @@
+[run]
+include =
+    manager/job.py
+    manager/manager.py
+    manager/pipeline.py
+    worker/bin/entrypoint.py

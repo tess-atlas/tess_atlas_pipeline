@@ -1,3 +1,4 @@
+# Sets up the manager-node as a github-action runner
 # https://github.com/organizations/tess-atlas/settings/actions/runners/new
 
 
