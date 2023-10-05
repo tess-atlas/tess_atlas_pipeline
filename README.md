@@ -1,5 +1,5 @@
 # TESS Atlas Catalog Pipeline
-[![Coverage Status](https://coveralls.io/repos/github/tess-atlas/tess_atlas_pipeline/badge.svg?branch=master)](https://coveralls.io/github/tess-atlas/tess_atlas_pipeline?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/tess-atlas/tess_atlas_pipeline/badge.svg?branch=main)](https://coveralls.io/github/tess-atlas/tess_atlas_pipeline?branch=main)
 
 First, "install" the worker by copying the `worker` skeleton directory to the remote cluster, e.g.
 ```
