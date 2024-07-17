@@ -36,6 +36,10 @@ def parse_args():
     parser.add_argument(
         "--test", action="store_true",
         help="Run in test mode (used for testing the pipeline)")
+    parser.add_argument(
+        "--just-webbuild", action="store_true",
+        help="Only run the web-builder"
+    )
     args = parser.parse_args()
 
     # validate args
@@ -46,15 +50,20 @@ def parse_args():
             f"tess_catalog_path '{args.tess_catalog_path}' does not exists"
         )
 
-    return (
+    return args (
         args.jobname,
         args.tess_catalog_path,
         args.web_build_dir,
         args.test
+        args.just_webbuild
     )
 
 
 def queue_and_run_jobs_on_runner(jobname: str, test_mode: bool) -> None:
+    """
+    1. Generate slurm+submit  
+    2. Watch job progress
+    """
     generate_tess_job(jobname, test_mode)
     jobarray_ids = submit_tess_job(jobname)
 
@@ -76,6 +85,9 @@ def queue_and_run_jobs_on_runner(jobname: str, test_mode: bool) -> None:
 
 
 def local_post_processing(jobname: str, tess_catalog_path: Path, web_build_dir: Path) -> None:
+    """
+    Copy results from remote + build website
+    """
     # Copy results if all were successful
     rsync_tess_results(jobname, tess_catalog_path)
 
@@ -94,9 +106,10 @@ def main():
     3) wait for jobs to finish
     4) copy back job results if successful
     """
-    (jobname, tess_catalog_path, web_build_dir, test_mode) = parse_args()
-    queue_and_run_jobs_on_runner(jobname, test_mode)
-    local_post_processing(jobname, tess_catalog_path, web_build_dir)
+    args = parse_args()
+    if not args.just_webbuild:
+        queue_and_run_jobs_on_runner(args.jobname, args.test)
+    local_post_processing(args.jobname, args.tess_catalog_path, args.web_build_dir)
 
 
 if __name__ == "__main__":
