@@ -8,13 +8,12 @@
 ## Example Usage:
 
 On Nectar
+```
+cd /mnt/storage/tess_atlas_pipeline/manager          
+python pipeline.py tess_oct2_23 /mnt/storage/tess_atlas_webbuilder/source/objects/ --web-build-dir /mnt/storage/tess_atlas_webbuilder/ |& tee pipeline.log
+```
 
-cd /mnt/storage/tess_atlas_pipeline/manager
-          echo "new dir:"
-          pwd
-          echo "Running pipeline:"
-          python pipeline.py tess_oct2_23 /mnt/storage/tess_atlas_webbuilder/source/objects/ --web-build-dir /mnt/storage/tess_atlas_webbuilder/ |& tee pipeline.log
-
+This will (1) generate+submit slurm jobs on OzStar, (2) build the website once the slurm jobs are all completed. 
 
 
 
