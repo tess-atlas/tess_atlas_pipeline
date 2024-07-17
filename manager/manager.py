@@ -69,7 +69,8 @@ def get_job_states(jobid: str) -> List[JobState]:
 
 
 def generate_tess_job(jobname: str, test_mode=False):
-    worker_run(f"generate {jobname} " + "--test" if test_mode else "")
+    cmd = f"generate {jobname} {'--test' if test_mode else ''}"
+    worker_run(cmd)
 
 
 def submit_tess_job(jobname) -> List[str]:
