@@ -50,13 +50,7 @@ def parse_args():
             f"tess_catalog_path '{args.tess_catalog_path}' does not exists"
         )
 
-    return args (
-        args.jobname,
-        args.tess_catalog_path,
-        args.web_build_dir,
-        args.test
-        args.just_webbuild
-    )
+    return args
 
 
 def queue_and_run_jobs_on_runner(jobname: str, test_mode: bool) -> None:
